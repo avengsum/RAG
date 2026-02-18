@@ -130,6 +130,7 @@ def chunking(file_path):
        page_content=ai_content,
        metadata={
           "source": file_path,
+          "chunk_id": i, ## so this for retrival to know two documents are diffrent
           "original_text": chunk_text,
           "tables_html": json.dumps(tables),
           "images_base64": json.dumps(images)
