@@ -1,7 +1,7 @@
 import json
 import os
 from dotenv import load_dotenv
-from config import CHROMA_PATH, EMBEDDING_MODEL, VISION_MODEL
+from config import BM25_PATH, CHROMA_PATH, EMBEDDING_MODEL, VISION_MODEL
 from langchain_google_genai import ChatGoogleGenerativeAI
 import base64
 from unstructured.partition.pdf import partition_pdf
@@ -10,6 +10,11 @@ from langchain_chroma import Chroma
 from langchain_core.documents import Document
 from langchain_groq import ChatGroq
 from langchain_google_genai import GoogleGenerativeAIEmbeddings
+from rank_bm25 import BM25Okapi
+from nltk.tokenize import word_tokenize
+import nltk
+nltk.download('punkt',quiet=True)
+import pickle
 
 load_dotenv()
 
@@ -40,6 +45,35 @@ def ai_summary(text,tables,image_b64):
   except Exception as e:
     print(f"      ❌ Error in AI summary: {e}")
     return text
+
+def build_save_bm25(chunks):
+  print("Buildinng BM25 index")
+
+   ## so we are builind here so that when the user query we should not build there we will just load
+
+  ## each chunk has page content so we will get that
+  docs_text = [doc.page_content for doc in chunks]
+
+  ## so we will tokenized the text so 
+  ## "Hello Worold" -> ["hello","world"] beacuse bm25 works upon words not strings
+  tokenized = [word_tokenize(doc.lower()) for doc in docs_text]
+
+  bm25 = BM25Okapi(tokenized)
+
+  ## so we are stroing model and orginal document both so that we can return original content in query time
+
+  bm25_data= {
+     "model":bm25,
+     "doc_map": chunks
+  }
+
+  os.makedirs(os.path.dirname(BM25_PATH),exist_ok=True)
+
+  with open(BM25_PATH,"wb") as f: 
+     # "wb" write binary so we are using pickle to save the data in the disk
+    pickle.dump(bm25_data,f)
+  
+  print(f"bm25 index save in {BM25_PATH}  number of documents {len(docs_text)}")
 
 
 def chunking(file_path):
@@ -115,6 +149,10 @@ def chunking(file_path):
     persist_directory=CHROMA_PATH, 
     collection_metadata={"hnsw:space": "cosine"}
   )
+
+  build_save_bm25(process_data)
+
+  print("Ingestion completed")
 
   return vectordb
 
