@@ -138,6 +138,12 @@ def chunking(file_path):
       )
 
     process_data.append(data)
+  
+  if process_data:
+    print(f"\n✅ Sample document metadata:")
+    print(f"   chunk_id: {process_data[0].metadata.get('chunk_id')} (type: {type(process_data[0].metadata.get('chunk_id'))})")
+    print(f"   source: {process_data[0].metadata.get('source')}")
+
 
 
   ## save in vectorDB
