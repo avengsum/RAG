@@ -1,0 +1,12 @@
+langchain
+langchain-google-genai
+langchain-community
+chromadb
+rank_bm25
+unstructured[all-docs]
+pydantic
+python-dotenv
+cohere
+numpy
+pandas
+joblib
