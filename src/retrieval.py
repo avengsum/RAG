@@ -238,14 +238,6 @@ class Retriever:
 
     return final_docs
 
-
-retriever = Retriever()
-
-results = retriever.retrieval("How does attention work?")
-
-for i , doc in enumerate(results):
-  print(f"\n--- Result {i+1} (Score: {doc.metadata.get('rerank_score',0):.3f}) ---")
-  print(doc.page_content[:200] + "...")
     
 
 

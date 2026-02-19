@@ -11,7 +11,7 @@ from langchain_core.documents import Document
 from langchain_groq import ChatGroq
 from langchain_google_genai import GoogleGenerativeAIEmbeddings
 from rank_bm25 import BM25Okapi
-from nltk.tokenize import word_tokenize
+from nltk.tokenize import word_tokenize ## to tokenize the word
 import nltk
 nltk.download('punkt',quiet=True)
 import pickle
@@ -143,8 +143,6 @@ def chunking(file_path):
     print(f"\n✅ Sample document metadata:")
     print(f"   chunk_id: {process_data[0].metadata.get('chunk_id')} (type: {type(process_data[0].metadata.get('chunk_id'))})")
     print(f"   source: {process_data[0].metadata.get('source')}")
-
-
 
   ## save in vectorDB
 

@@ -107,7 +107,13 @@ class RagGenerator:
 
       res = self.model.invoke([message])
 
-      return res.content
+      if isinstance(res.content, list):
+          # Join all text blocks together
+          final_text = "".join([block.get("text", "") for block in res.content if block.get("type") == "text"])
+          return final_text
+      else:
+        # It's already a string
+        return str(res.content)
     
     except Exception as e:
       print(f"Generation Failed: {e}")
