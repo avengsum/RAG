@@ -1,10 +1,9 @@
-import base64
 import json
 from dotenv import load_dotenv
 from langchain_google_genai import ChatGoogleGenerativeAI
 from typing import List, Dict, Any
 from langchain_core.documents import Document
-from langchain_core.messages import HumanMessage 
+from langchain_core.messages import HumanMessage , SystemMessage , AIMessage
 
 from config import MODEL
 
@@ -14,6 +13,21 @@ class RagGenerator:
   def __init__(self):
     print("----- Gerneration started -----")
     self.model = ChatGoogleGenerativeAI(model=MODEL)
+    self.chat_history = []
+    self.max_history = 5
+
+  def _system_prompt(self) -> Dict[str, Any]:
+        return {
+            "type": "text",
+            "text": (
+                "You are an expert AI assistant. Answer the user's question using the provided context.\n"
+                "The context contains Text, Tables (in HTML), and Images.\n"
+                "Use ALL available data to answer accurately.\n"
+                "If the answer is found in an image or table, explicitly mention it.\n"
+                "Cite the source document name where possible.\n"
+                "Use the conversation history to maintain context across questions.\n"
+            )
+        }
   
   def _prompt_content(self,query:str,docs:List[Document]) -> List[Dict[str, Any]]:
     ## so in prompt we will give text strings images so we will desingn in that way
@@ -22,14 +36,7 @@ class RagGenerator:
 
     prompt.append({
       "type": "text",
-            "text": (
-                "You are an expert AI assistant. Answer the user's question using the provided context.\n"
-                "The context contains Text, Tables (in HTML), and Images.\n"
-                "Use ALL available data to answer accurately.\n"
-                "If the answer is found in an image or table, explicitly mention it.\n"
-                "Cite the source document name where possible.\n"
-                "\n--- START OF CONTEXT ---\n"
-            )
+            "text": "\n--- START OF CONTEXT ---\n"
       })
 
     for i, doc in enumerate(docs):
@@ -96,40 +103,54 @@ class RagGenerator:
 
     return prompt
   
+  
   def ai_response(self,query:str,retrieved_doc:List[Document]) -> str:
     print(f"Generating Answer with {len(retrieved_doc)} chunks")
 
     try:
+
+      # for history
+      messages = []
+
+      ## adding system prompt
+      if not self.chat_history:
+        messages.append(SystemMessage(
+          content =[self._system_prompt()]
+        ))
+      
+      if len(self.chat_history) > 0:
+        number_of_messages = self.max_history * 2
+        recent_history = self.chat_history[-number_of_messages:]
+
+        for r in recent_history:
+          messages.append(r)
+
       prompt = self._prompt_content(query=query,docs=retrieved_doc)
       
       ## because langchain require role and msg so this handle this
       message = HumanMessage(content=prompt)
+      messages.append(message)
 
-      res = self.model.invoke([message])
+      res = self.model.invoke(messages)
 
       if isinstance(res.content, list):
           # Join all text blocks together
           final_text = "".join([block.get("text", "") for block in res.content if block.get("type") == "text"])
-          return final_text
       else:
         # It's already a string
-        return str(res.content)
+        final_text = str(res.content)
+      
+      self.chat_history.append(HumanMessage(content=query))
+
+      self.chat_history.append(AIMessage(content=final_text))
+
+      return final_text
     
     except Exception as e:
       print(f"Generation Failed: {e}")
       return "Generation failed"
     
   
-
-dummy_doc = Document(
-        page_content="The Transformer model uses self-attention mechanisms.",
-        metadata={
-            "source": "test_doc.pdf",
-            "original_text": "The Transformer model uses self-attention mechanisms to process input sequences.",
-            "tables_html": "[]",
-            "images_base64": "[]" 
-        }
-    )
 
     
 

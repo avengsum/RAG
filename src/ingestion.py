@@ -1,8 +1,7 @@
 import json
 import os
 from dotenv import load_dotenv
-from config import BM25_PATH, CHROMA_PATH, EMBEDDING_MODEL, VISION_MODEL
-from langchain_google_genai import ChatGoogleGenerativeAI
+from config import BM25_PATH, CHROMA_PATH, EMBEDDING_MODEL
 import base64
 from unstructured.partition.pdf import partition_pdf
 from unstructured.chunking.title import chunk_by_title
@@ -15,6 +14,7 @@ from nltk.tokenize import word_tokenize ## to tokenize the word
 import nltk
 nltk.download('punkt',quiet=True)
 import pickle
+from unstructured.partition.auto import partition
 
 load_dotenv()
 
@@ -81,13 +81,35 @@ def chunking(file_path):
   
   print("partitioning PDF")
 
-  elements = partition_pdf(
+  extension = os.path.splitext(file_path)[1]
+
+  if extension == ".pdf":
+    elements = partition_pdf(
     filename=file_path,
     strategy="hi_res",
     infer_table_structure=True, ## get HTML for tables
-    extract_image_block_types=["Image"],
+    extract_image_block_types=["Image","Table"],
     extract_image_block_to_payload=True # to get Base64 data
   )
+  
+  elif extension in [".docx",".pptx"]:
+     elements = partition(
+        filename=file_path,
+        strategy="hi_res",
+        infer_table_structure=True,
+        extract_image_block_types=["Image", "Table"],
+        extract_image_block_to_payload=True
+      )
+  
+  elif extension in [".txt",".md",".html"]:
+     elements = partition(
+        filename=file_path,
+        strategy="auto",
+      )
+  
+  else:
+    print(f" Unsupported file type: {extension}")
+    return None
 
   ## chunking
 
