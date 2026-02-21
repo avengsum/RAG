@@ -185,4 +185,4 @@ def chunking(file_path):
 
 
 
-chunking(r"C:\Users\sy710\Desktop\gen-ai\rag\data\attention-is-all-you-need-Paper.pdf")
+chunking(r"C:\Users\sy710\Desktop\gen-ai\rag\data\nvidia-blackwell-architecture-technical-brief.pdf")

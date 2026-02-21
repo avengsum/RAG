@@ -44,11 +44,26 @@ with open("data/eval/eval.json") as f:
 
 
 results = []
+total_hits = 0
 
-for item in test_set:
-  print(f"Testing: {item['question'][:20]}")
+for i, item in enumerate(test_set):
+  print(f"{i+1} Testing: {item['question'][:20]}")
 
   searchDoc = retriever.hybrid_search(item["question"])
+
+  ## so we are checking if the doc we get appwar in our result
+  is_hit = False
+
+  ## so this actual conternt we added in our eval.json
+  actual_content = item["actual_content"].strip()[:100]
+
+  for doc in searchDoc:
+    if actual_content in doc.page_content.strip():
+      is_hit = True
+      break
+  
+  if is_hit:
+    total_hits +=1
 
   rag_answer = generator.ai_response(item["question"],searchDoc)
 
@@ -56,12 +71,18 @@ for item in test_set:
 
   ## so we will save our score to avg it
 
-  results.append({**item, "rag_answer": rag_answer, **judgeScore})
+  results.append({
+    "question": item["question"],
+    "correct_answer": item["correct_ans"],
+    "rag_answer": rag_answer,
+    "retrieval_hit": is_hit,
+    "score": judgeScore['score'],   
+    "reason": judgeScore['reason']
+  })
 
 
 avgScore = sum(r['score'] for r in results) / len(results)
+hit_rate = (total_hits / len(test_set)) * 100
 
 print(f"FINAL RAG SCORE: {avgScore}/5.0")
-
-
-  
+print(f"🎯 Retrieval Hit Rate:    {hit_rate:.1f}%")

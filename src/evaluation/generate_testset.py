@@ -46,6 +46,8 @@ for i, doc in enumerate(samples):
 
     ques = create_qna(doc.page_content)
 
+    ques["actual_content"] = doc.page_content
+
     test_set.append(ques)
 
   except Exception as e:
