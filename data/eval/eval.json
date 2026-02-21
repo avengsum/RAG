@@ -1,0 +1,42 @@
+[
+    {
+        "question": "In the context of extending the Transformer to modalities beyond text, what specific type of attention mechanism do the authors propose investigating to efficiently handle large inputs like images, audio, and video, and what distinct research goal do they mention regarding the generation process?",
+        "correct_ans": "The authors propose investigating local, restricted attention mechanisms to handle large inputs, and they state that making generation less sequential is another research goal."
+    },
+    {
+        "question": "Contrast the token encoding methods and vocabulary sizes used for the WMT 2014 English-German dataset versus the WMT 2014 English-French dataset as described in the text.",
+        "correct_ans": "The English-German dataset uses byte-pair encoding with a shared source-target vocabulary of about 37,000 tokens, whereas the English-French dataset uses a 32,000 word-piece vocabulary."
+    },
+    {
+        "question": "In the decoder's self-attention layers, what specific mechanism is implemented within the scaled dot-product attention to prevent leftward information flow and preserve the auto-regressive property, and what numerical value is used to modify the softmax input for illegal connections?",
+        "correct_ans": "The mechanism involves masking out illegal connections to prevent leftward information flow. This is implemented by setting all values in the input of the softmax corresponding to these illegal connections to \u2212\u221e."
+    },
+    {
+        "question": "According to the text, what specific operation inhibits a single attention head from jointly attending to information from different representation subspaces, and what are the precise dimensions of the output projection matrix $W^O$?",
+        "correct_ans": "The operation that inhibits this capability in a single attention head is 'averaging'. The dimensions of the output projection matrix $W^O$ are $\\mathbb{R}^{hd_v \\times d_{model}}$."
+    },
+    {
+        "question": "In terms of the computational operations required to relate signals from two arbitrary positions, how does the Transformer compare to convolutional architectures like ConvS2S and ByteNet, and what specific mechanism does the Transformer employ to mitigate the negative side effect of its approach?",
+        "correct_ans": "While the number of operations grows linearly for ConvS2S and logarithmically for ByteNet based on the distance between positions, the Transformer reduces this to a constant number of operations. To counteract the resulting 'reduced effective resolution' caused by averaging attention-weighted positions, the Transformer uses Multi-Head Attention."
+    },
+    {
+        "question": "What specific hyperparameter modification was applied to the Transformer (big) model for the English-to-French translation task regarding dropout, and how does the checkpoint averaging strategy for 'big' models differ from that used for 'base' models?",
+        "correct_ans": "For the English-to-French task, the Transformer (big) model used a dropout rate (Pdrop) of 0.1 instead of 0.3. Regarding checkpoint averaging, the 'big' models were obtained by averaging the last 20 checkpoints, whereas the 'base' models were obtained by averaging the last 5 checkpoints."
+    },
+    {
+        "question": "Based on the text, if you calculate the theoretical total training time for the 'big models' strictly using the provided step count and per-step duration, what is the result in hours, and how does this value compare to the reported duration of 3.5 days (assuming a 24-hour day)?",
+        "correct_ans": "The theoretical training time is 83.33 hours (calculated as 300,000 steps \u00d7 1.0 seconds / 3600 seconds/hour). This value is approximately 0.67 hours (or 40 minutes) shorter than the reported duration of 84 hours (3.5 days \u00d7 24 hours)."
+    },
+    {
+        "question": "According to the provided text, who are the five editors listed for the proceedings 'Advances in Neural Information Processing Systems 28' in which the paper 'End-to-end memory networks' was published?",
+        "correct_ans": "C. Cortes, N. D. Lawrence, D. D. Lee, M. Sugiyama, and R. Garnett"
+    },
+    {
+        "question": "According to the text, what specific inputs does the decoder consume to generate the next symbol in the sequence, and what two distinct types of layers does the Transformer utilize in both the encoder and decoder to implement this architecture?",
+        "correct_ans": "The decoder consumes the sequence of continuous representations z (mapped by the encoder) and the previously generated symbols (due to the model being auto-regressive). The Transformer utilizes stacked self-attention and point-wise, fully connected layers."
+    },
+    {
+        "question": "According to the text, what specific functional dependency in recurrent models creates an inherently sequential nature that prevents parallelization within training examples, and do improvements like factorization tricks or conditional computation resolve this fundamental constraint?",
+        "correct_ans": "The dependency is that the hidden state h_t is generated as a function of the previous hidden state h_{t-1} (and the input for position t). The text states that while factorization tricks and conditional computation achieve improvements in efficiency, they do not resolve the fundamental constraint of sequential computation."
+    }
+]
